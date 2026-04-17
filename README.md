@@ -11,6 +11,7 @@ Backend (API) do sistema de gestão de consultório — repositório irmão do *
 
 ## Documentação
 
+- [Guia de continuidade](docs/PROMPT.md) — contexto, estado do projeto e próximo passo (útil em sessões novas).
 - [Especificação (API, domínio, contratos)](docs/SPEC.md) — inclui features alinhadas ao frontend, PostgreSQL e arquitetura.
 - [Plano de implementação](docs/PLAN.md) — fases e ordem sugerida.
 - [Changelog](CHANGELOG.md) — histórico de mudanças por versão.
