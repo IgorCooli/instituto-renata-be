@@ -20,7 +20,7 @@ Antes de implementar ou alterar contratos, confirma:
 1. **Leste** este `docs/PROMPT.md` e as secções **§2 (arquitetura)**, **§4–6 (auth e contrato)** do **`docs/SPEC.md`**, mais a fase correta no **`docs/PLAN.md`**.
 2. O frontend **já espera** um payload de sessão compatível com (campos lógicos): `email` (string), `role` (`admin` \| `common`), `enabledFeatures` (array com subset de `marketing`, `crm`, `vendas`, `estoque`). Ver tipos em `instituto-renata-fe/src/app/auth/types.ts` e `access/types.ts` — **qualquer mudança de nomes/valores** deve ser coordenada com o FE ou versionada na API.
 3. **Clean Architecture:** código de domínio **sem** importar `net/http`, drivers SQL ou frameworks no núcleo; adaptadores em `internal/...`; composição só em **`cmd/`**.
-4. **PostgreSQL** é a BD oficial; schema só via **migrações** versionadas (ferramenta a fixar na Fase 1).
+4. **PostgreSQL** é a BD oficial; em **local**, o Postgres corre em **Docker** (fluxo padrão — ver `docs/SPEC.md` §7.1). Variável **`ENV`** selecciona o perfil e **condiciona** URL/credenciais da BD (§7.2). Schema só via **migrações** versionadas (ferramenta a fixar na Fase 1).
 5. Prefixo HTTP sugerido: **`/api/v1`** (ajustar no SPEC se mudares).
 6. **Antes de concluir a tarefa:** atualizar **`docs/PROMPT.md`** conforme a regra de manutenção (obrigatório quando a alteração mudar estado ou próximos passos), **`CHANGELOG.md`**, e o **`README.md`** quando comandos ou stack mudarem de forma material.
 
@@ -80,7 +80,7 @@ Antes de implementar ou alterar contratos, confirma:
 
 1. **`go mod init`** com o path do módulo acordado (ex. `github.com/<org>/instituto-renata-be`).
 2. Criar **`cmd/api/main.go`** (ou nome acordado) com servidor mínimo.
-3. Ligar **PostgreSQL** (driver + pool), `.env.example`, primeira **migração**.
+3. Ligar **PostgreSQL** (driver + pool): **`ENV`** + parâmetros de BD por perfil em `.env.example`; Postgres local via **Docker** (Compose ou equivalente); primeira **migração**.
 4. Expor **`GET /api/v1/health`** (ou path definido no SPEC).
 5. Atualizar **`README.md`** com comandos reais (`go run ./cmd/api`) e **`CHANGELOG.md`**.
 
@@ -107,13 +107,14 @@ Depois: **Fase 2** — autenticação e mesmo contrato de sessão que o frontend
 # go test ./...
 ```
 
-Usar PostgreSQL local ou container; variáveis documentadas em `.env.example` (sem segredos no Git).
+PostgreSQL em **Docker** para desenvolvimento local (padrão); definir **`ENV`** e credenciais/URL conforme `.env.example` (sem segredos no Git).
 
 ---
 
 ## Ligação ao frontend
 
-- Repositório: **`instituto-renata-fe`** (mesmo diretório pai que este repo) — hoje usa **mocks** (`src/app/auth/mockLogin.ts`); a integração substitui por chamadas HTTP.
+- Repositório: **`instituto-renata-fe`** (mesmo diretório pai que este repo) — hoje usa **mocks** (`src/app/auth/mockLogin.ts`); a integração substitui por chamadas HTTP para a base definida por **`VITE_API_BASE_URL`** (`instituto-renata-fe/docs/SPEC.md` §3.1).
+- **CORS** no servidor deve permitir a origem do FE em cada ambiente (ver `docs/SPEC.md` §8).
 - Manter **nomes estáveis** de features (`marketing`, `crm`, `vendas`, `estoque`) e roles (`admin`, `common`) alinhados ao `instituto-renata-fe/docs/SPEC.md` §5.
 - O guia de continuidade do FE está em **`instituto-renata-fe/docs/PROMPT.md`** — útil para ver o que a UI já assume.
 

@@ -62,6 +62,7 @@ flowchart TB
 |------------|---------|
 | Linguagem | **Go** |
 | Base de dados | **PostgreSQL** |
+| Ambiente / BD | Variável **`ENV`** — seleciona o perfil (local, staging, produção, …) e **condiciona** URL/host, utilizador, senha e restantes parâmetros de ligação; ver §7.2. |
 | Migrações | Ferramenta a definir (ex.: `goose`, `migrate`, `atlas`) — registar no histórico ao fixar. |
 | API | JSON, UTF-8; prefixo versionado (ex.: `/api/v1`). |
 | Auth | JWT assinado ou sessão com cookie seguro — detalhar em revisão; claims mínimos alinhados a §6. |
@@ -118,13 +119,25 @@ Resposta de login / `GET /me` deve ser compatível com o que o frontend já mode
 ## 7. PostgreSQL
 
 - **Única fonte relacional** para o MVP (sem replicação obrigatória no desenho inicial).
-- Conexão por pool; variáveis `DATABASE_URL` ou `PGHOST`, `PGUSER`, etc. em `.env.example` (sem segredos versionados).
+- Conexão por pool; variáveis de ligação documentadas em `.env.example` (sem segredos versionados).
 - Migrações obrigatórias para qualquer alteração de schema em ambientes partilhados.
+
+### 7.1 Desenvolvimento local (Docker)
+
+- Em **execução local**, o PostgreSQL deve ser fornecido via **Docker** (ex.: `docker compose` ou `Compose` com serviço `postgres` definido no repositório quando a base de código existir). Este é o fluxo **padrão** documentado para levantar a BD ao desenvolver.
+- Uma instalação nativa de PostgreSQL na máquina do desenvolvedor continua possível, desde que a ligação respeite os mesmos parâmetros acordados para o perfil `local` (ver §7.2).
+
+### 7.2 Variável `ENV` e perfis de ligação
+
+- O serviço deve ler uma variável de ambiente **`ENV`** que identifica o **perfil de ambiente** em que o processo corre (ex.: `local`, `staging`, `production` — conjunto de valores permitidos a fixar no código e a listar no `README` / `.env.example`).
+- O valor de **`ENV` condiciona a configuração de acesso ao PostgreSQL**: para cada perfil, o processo utiliza o **URL/host**, **porta**, **utilizador**, **palavra-passe** e **nome da base** (ou equivalente num único `DATABASE_URL`) adequados àquele ambiente — por exemplo credenciais do container em `local` e credenciais geridas no servidor em `production`.
+- O mesmo binário deve poder correr em máquina local e em servidores **alterando apenas variáveis de ambiente** (incluindo `ENV` e as credenciais ou URLs associadas ao perfil), sem recompilar para mudar de base de dados.
+- A forma exacta de mapear `ENV` → parâmetros (ficheiro de config por ambiente, variáveis com sufixo, ou `DATABASE_URL` distintos por perfil) fica definida na implementação (Fase 1), desde que **`ENV` seja o interruptor documentado** e o contrato de variáveis esteja em `.env.example`.
 
 ## 8. Segurança e erros
 
 - HTTPS em produção; senhas com hash forte (Argon2 ou bcrypt).
-- CORS restrito à origem do frontend em produção.
+- **CORS:** permitir apenas as **origens** onde o `instituto-renata-fe` é servido em cada ambiente. O cliente define a URL do API via **`VITE_API_BASE_URL`** (`instituto-renata-fe/docs/SPEC.md` §3.1); o backend deve aceitar pedidos dessa origem quando **`ENV`** (§7.2) corresponder ao mesmo perfil (local vs produção). Não usar `*` em produção.
 - Erros JSON: código estável, mensagem segura; sem stack trace ao cliente em produção.
 - Códigos HTTP: 401 não autenticado; 403 sem permissão ou feature; 404; 422 validação.
 
@@ -147,3 +160,5 @@ Resposta de login / `GET /me` deve ser compatível com o que o frontend já mode
 | Data | Alteração |
 |------|-----------|
 | 2026-04-18 | Versão inicial: Go, PostgreSQL, Clean Architecture, `cmd/` e features alinhadas ao FE; Go 1.26.2 como referência de ambiente. |
+| 2026-04-17 | PostgreSQL em Docker para desenvolvimento local; variável `ENV` para perfis de ligação à BD (URL, utilizador, senha, etc.). |
+| 2026-04-19 | §8: CORS alinhado ao frontend (`VITE_API_BASE_URL`) e perfis `ENV`. |

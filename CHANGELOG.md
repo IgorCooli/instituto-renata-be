@@ -6,8 +6,14 @@ O formato segue a ideia de [Keep a Changelog](https://keepachangelog.com/pt-BR/1
 
 ## [Unreleased]
 
+### Changed
+
+- `docs/SPEC.md` §8: **CORS** explícito em relação ao frontend (`VITE_API_BASE_URL` no `instituto-renata-fe`) e perfis **`ENV`**.
+
 ### Added
 
+- `docs/SPEC.md`: PostgreSQL em **Docker** para desenvolvimento local (§7.1); variável de ambiente **`ENV`** para perfis que condicionam URL e credenciais do Postgres (§7.2); tabela de stack §4 actualizada.
+- `docs/PLAN.md` (Fase 1), `docs/PROMPT.md` e `README.md` alinhados a Docker local e `ENV`.
 - Documentação inicial: `docs/SPEC.md` (Go, **PostgreSQL**, Clean Architecture, features alinhadas ao frontend, contrato de sessão, diretrizes de changelog/README) e `docs/PLAN.md` (fases, **`cmd/`** com injeção por feature).
 - `README.md` com stack, links para docs e secção **Funcionalidades em produção** (vazia até primeiro deploy relevante).
 - Referência de ambiente: **Go 1.26.2** (`darwin/arm64`) na data da documentação; fixar versão mínima em `go.mod` na Fase 1.

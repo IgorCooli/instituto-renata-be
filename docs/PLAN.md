@@ -49,11 +49,12 @@ flowchart LR
 1. `go mod init` / árvore base com **`cmd/api`** (ou nome acordado): `main` mínimo.
 2. Pacotes `internal/...` conforme Clean Architecture (domínio / casos de uso / adapters).
 3. Driver PostgreSQL (`database/sql` + `pgx` ou `lib/pq` — fixar no código e no SPEC).
-4. Ficheiro `.env.example` com variáveis de ligação à BD (sem segredos).
-5. Migrações iniciais (schema vazio ou tabela de metadados).
-6. `GET /api/v1/health` (liveness).
+4. Ficheiro `.env.example` com **`ENV`** (perfil de ambiente) e variáveis de ligação à BD **por perfil** ou derivadas de `ENV` (sem segredos versionados) — ver `docs/SPEC.md` §7.2.
+5. PostgreSQL em **Docker** como forma padrão de correr a BD em desenvolvimento local (ex.: Compose no repositório), alinhado a §7.1 do SPEC.
+6. Migrações iniciais (schema vazio ou tabela de metadados).
+7. `GET /api/v1/health` (liveness).
 
-**Saída:** API responde em desenvolvimento com BD local ou container Postgres.
+**Saída:** API responde em desenvolvimento com Postgres (preferencialmente via Docker local) e configuração de BD seleccionada por `ENV`.
 
 ---
 

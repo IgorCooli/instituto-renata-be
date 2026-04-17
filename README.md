@@ -24,6 +24,9 @@ Gerenciador de pacotes: **`go`** (`go mod`).
 
 *(Comandos concretos serão preenchidos após `go mod init` e o primeiro binário em `cmd/` — ver `docs/PLAN.md` Fase 1.)*
 
+- **PostgreSQL em Docker** é o método previsto para correr a base de dados **localmente** (detalhes no `docs/SPEC.md` §7.1 quando existir `compose` ou equivalente).
+- O serviço usará a variável de ambiente **`ENV`** para escolher o perfil (local, staging, produção, …) e **condicionar** host/URL, utilizador e senha do Postgres — ver `docs/SPEC.md` §7.2 e `.env.example` (quando existir).
+
 ```bash
 # exemplo futuro
 # go run ./cmd/api
