@@ -4,12 +4,25 @@ Este ficheiro existe para **sessões novas** (outro chat, outro dia, outro dev):
 
 ### Manutenção obrigatória
 
-**Toda entrega ou ajuste relevante** (nova fase, endpoint, migração, mudança de contrato com o frontend, etc.) deve **atualizar este `docs/PROMPT.md`** na mesma alteração (ou no mesmo PR), para refletir:
+**Toda alteração** que mude o estado do desenvolvimento (código Go, schema PostgreSQL, endpoints, contrato com o frontend, conclusão de fase, nova prioridade, etc.) deve vir acompanhada de **atualização deste `docs/PROMPT.md` na mesma alteração** (ou no mesmo PR), para refletir:
 
-- **O que já foi feito** — secção *O que já foi feito (resumo)* e, se preciso, tabela ou bullets.
+- **O que já foi feito** — secção *O que já foi feito (resumo)* (tabela ou bullets).
 - **Os próximos passos** — secção *Próximo passo sugerido*, alinhada ao `docs/PLAN.md` e ao estado real do código.
 
 O **`CHANGELOG.md`** continua a registar *o quê* mudou por versão; o **PROMPT** é o **estado atual em linguagem natural** para quem abre o projeto de novo. Se o `PLAN.md` ou o `SPEC.md` mudarem de forma material, o PROMPT deve acompanhar.
+
+**Regra explícita para assistentes de IA:** ao concluir **qualquer tarefa** que altere o repositório de forma a mudar “o que está feito” ou “o que falta a seguir”, **não encerrar** sem atualizar as secções acima neste ficheiro. Isto inclui novos endpoints, migrações, auth, módulos de domínio e alterações de contrato com o FE. **Única exceção:** mudanças puramente cosméticas sem impacto no produto. Em caso de dúvida, **atualiza o PROMPT**.
+
+### Para assistentes (IA) e novas sessões — checklist mínima
+
+Antes de implementar ou alterar contratos, confirma:
+
+1. **Leste** este `docs/PROMPT.md` e as secções **§2 (arquitetura)**, **§4–6 (auth e contrato)** do **`docs/SPEC.md`**, mais a fase correta no **`docs/PLAN.md`**.
+2. O frontend **já espera** um payload de sessão compatível com (campos lógicos): `email` (string), `role` (`admin` \| `common`), `enabledFeatures` (array com subset de `marketing`, `crm`, `vendas`, `estoque`). Ver tipos em `instituto-renata-fe/src/app/auth/types.ts` e `access/types.ts` — **qualquer mudança de nomes/valores** deve ser coordenada com o FE ou versionada na API.
+3. **Clean Architecture:** código de domínio **sem** importar `net/http`, drivers SQL ou frameworks no núcleo; adaptadores em `internal/...`; composição só em **`cmd/`**.
+4. **PostgreSQL** é a BD oficial; schema só via **migrações** versionadas (ferramenta a fixar na Fase 1).
+5. Prefixo HTTP sugerido: **`/api/v1`** (ajustar no SPEC se mudares).
+6. **Antes de concluir a tarefa:** atualizar **`docs/PROMPT.md`** conforme a regra de manutenção (obrigatório quando a alteração mudar estado ou próximos passos), **`CHANGELOG.md`**, e o **`README.md`** quando comandos ou stack mudarem de forma material.
 
 ---
 
@@ -50,6 +63,17 @@ O **`CHANGELOG.md`** continua a registar *o quê* mudou por versão; o **PROMPT*
 
 **Referência de ambiente** (não versionada como contrato até existir `go.mod`): Go **1.26.2** `darwin/arm64` — mencionado no `CHANGELOG` [Unreleased].
 
+**Endpoints a implementar (ordem lógica; detalhes no `docs/SPEC.md`):**
+
+| Prioridade | Método | Caminho (rascunho) | Nota |
+|------------|--------|---------------------|------|
+| 1 | `GET` | `/api/v1/health` | Liveness, sem auth |
+| 2 | `POST` | `/api/v1/auth/login` | Corpo: credenciais; resposta: dados alinhados ao `AuthSession` do FE + mecanismo de sessão/JWT definido no SPEC |
+| 3 | `POST` | `/api/v1/auth/logout` | Se sessão server-side; senão documentar |
+| 4 | `GET` | `/api/v1/me` | Opcional se tudo vier no login/token |
+
+**O que o cliente FE faz hoje:** grava sessão em `sessionStorage` (`ir_auth_session`) após `mockLogin` — a integração real deve substituir isso por resposta da API mantendo o mesmo **significado** dos campos.
+
 ---
 
 ## Próximo passo sugerido
@@ -89,8 +113,9 @@ Usar PostgreSQL local ou container; variáveis documentadas em `.env.example` (s
 
 ## Ligação ao frontend
 
-- Repositório: **`instituto-renata-fe`** — hoje usa **mocks**; a integração substitui `mockLogin` e passa a usar esta API.
-- Manter **nomes estáveis** de features e roles alinhados ao SPEC do FE.
+- Repositório: **`instituto-renata-fe`** (mesmo diretório pai que este repo) — hoje usa **mocks** (`src/app/auth/mockLogin.ts`); a integração substitui por chamadas HTTP.
+- Manter **nomes estáveis** de features (`marketing`, `crm`, `vendas`, `estoque`) e roles (`admin`, `common`) alinhados ao `instituto-renata-fe/docs/SPEC.md` §5.
+- O guia de continuidade do FE está em **`instituto-renata-fe/docs/PROMPT.md`** — útil para ver o que a UI já assume.
 
 ---
 
