@@ -242,6 +242,7 @@ flowchart TB
 | `instituto-renata-fe/docs/SPEC.md` | Módulos, RBAC e features — fonte de produto. |
 | `docs/SPEC.md` (backend) | Contrato HTTP, PostgreSQL, `ENV`, sessão; §3.1 e §10 impõem **manter este ficheiro** quando o modelo mudar. |
 | `docs/PROMPT.md` | Regra de continuidade: actualizar **`docs/ENTITIES.md`** quando informação nova impactar entidades ou relacionamentos. |
+| `docs/CONTEXT.md` | Resumo curto de stack/fase (não substitui este ficheiro). |
 | `docs/PLAN.md` | Fase 0 e secção **Documentação de domínio** — mesmo critério. |
 
 **Regra:** qualquer informação (do utilizador, do spec do FE ou do código) que **altere** o entendimento de entidades, relações ou diagramas deve ser reflectida **aqui** na mesma alteração que `SPEC` / migrações / código relevante.

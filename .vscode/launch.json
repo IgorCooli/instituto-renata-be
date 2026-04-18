@@ -1,0 +1,34 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "InstitutoRenataApi (local + Postgres)",
+      "request": "launch",
+      "mainClass": "com.institutorenata.api.InstitutoRenataApiApplication",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "preLaunchTask": "gradle: compileJava",
+      "env": {
+        "ENV": "local",
+        "SPRING_DATASOURCE_URL": "jdbc:postgresql://localhost:5432/postgres",
+        "SPRING_DATASOURCE_USERNAME": "admin",
+        "SPRING_DATASOURCE_PASSWORD": "admin"
+      }
+    },
+    {
+      "type": "java",
+      "name": "InstitutoRenataApi (sem pré-build — se a outra falhar)",
+      "request": "launch",
+      "mainClass": "com.institutorenata.api.InstitutoRenataApiApplication",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "env": {
+        "ENV": "local",
+        "SPRING_DATASOURCE_URL": "jdbc:postgresql://localhost:5432/postgres",
+        "SPRING_DATASOURCE_USERNAME": "admin",
+        "SPRING_DATASOURCE_PASSWORD": "admin"
+      }
+    }
+  ]
+}

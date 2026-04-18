@@ -1,4 +1,40 @@
+HELP.md
+target/
+.gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### Env
 .env
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
+
 *.exe
 /bin/
-/dist/

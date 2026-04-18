@@ -37,7 +37,7 @@ flowchart LR
 3. `README.md` na raiz: stack (Java, Spring Boot, PostgreSQL), como correr (quando existir), links para docs; secção **produção** como no `instituto-renata-fe`.
 4. `CHANGELOG.md` na raiz (Keep a Changelog / semver, espírito idêntico ao frontend).
 
-**Saída:** processo claro antes do primeiro build Maven/Gradle útil; modelo de entidades documentado e com regra de manutenção explícita.
+**Saída:** processo claro antes do primeiro build Gradle útil; modelo de entidades documentado e com regra de manutenção explícita.
 
 ---
 
@@ -48,7 +48,7 @@ flowchart LR
 **Passos:**
 
 1. Criar projecto **Spring Boot 4.x** (via [Spring Initializr](https://start.spring.io/) ou equivalente): **Java 25**, dependências mínimas — **Spring Web**, **Spring Data JPA** (ou JDBC + escolha documentada), **PostgreSQL driver**, **Flyway** ou **Liquibase** (fixar no repo e no SPEC).
-2. **Maven** ou **Gradle** — fixar um; grupo `artifact` / pacote base alinhados ao repositório (documentar no `README`).
+2. **Gradle** (Kotlin DSL) — `build.gradle.kts` / `settings.gradle.kts` (`com.institutorenata:instituto-renata-api`); pacote base `com.institutorenata.api`.
 3. Configurar **`ENV`** e perfis Spring (`application.yml`, `application-local.yml`, …) para datasource por ambiente — ver `docs/SPEC.md` §7.2; ficheiro **`.env.example`** (sem segredos).
 4. **Docker Compose** com **PostgreSQL** como forma padrão de BD em desenvolvimento local (§7.1 do SPEC).
 5. Primeira **migração** (schema mínimo ou tabela de metadados).
@@ -156,4 +156,5 @@ flowchart LR
 |------|-----------|
 | 2026-04-18 | Plano inicial: Go, Postgres, Clean Architecture, `cmd/`, fases alinhadas às features do FE. |
 | 2026-04-18 | **Stack:** Java, Spring Boot, Fase 1 com Maven/Gradle e Flyway/Liquibase; composição Spring em vez de `cmd/`. |
+| 2026-04-18 | Fase 1: build **Gradle** Kotlin DSL (substitui Maven no repositório). |
 | 2026-04-18 | Fase 0 e secção **Documentação de domínio:** manutenção obrigatória de `docs/ENTITIES.md` quando o modelo mudar. |

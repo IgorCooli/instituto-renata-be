@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS schema_ready (
+  id SMALLINT PRIMARY KEY CHECK (id = 1)
+);
+
+INSERT INTO schema_ready (id) VALUES (1) ON CONFLICT (id) DO NOTHING;

@@ -4,7 +4,7 @@ Documento vivo do repositório **`instituto-renata-be`**, alinhado ao produto em
 
 ## 1. Visão
 
-- **Linguagem:** **Java** (versão mínima LTS e toolchain registadas em `README.md` / `pom.xml` ou Gradle; ambiente de referência do time documentada no histórico).
+- **Linguagem:** **Java** (versão mínima LTS e toolchain registadas em `README.md` / `build.gradle.kts`; ambiente de referência do time documentada no histórico).
 - **Framework:** **Spring Boot** (linha 4.x estável; alinhar versão exacta ao `README` e ao build).
 - **Base de dados:** **PostgreSQL** — fonte de verdade relacional para tenants, utilizadores, domínio (CRM, vendas, estoque) e metadados de pacotes/features.
 - **Função:** API REST (evolução para jobs assíncronos quando necessário) consumida pelo `instituto-renata-fe`.
@@ -54,8 +54,8 @@ flowchart TB
 
 ## 3. Estrutura de repositório (diretrizes)
 
-- **Build:** **Maven** ou **Gradle** — fixar um na Fase 1 e registar no `README`.
-- **Código:** árvore `src/main/java` (ou `src/main/kotlin` se no futuro se optar por Kotlin) com **pacote base** único (ex.: `com.institutorenata.api` — nome final a alinhar ao grupo Maven/artifact).
+- **Build:** **Gradle** (Kotlin DSL — `build.gradle.kts`) — registado no `README`.
+- **Código:** árvore `src/main/java` (ou `src/main/kotlin` se no futuro se optar por Kotlin) com **pacote base** único (ex.: `com.institutorenata.api` — alinhado ao nome do projecto Gradle).
 - Organização sugerida: **por feature** (ex.: `auth`, `crm`, `vendas`, `estoque`) com subpacotes `web`, `application`, `domain`, `persistence` **ou** por camada com subpacotes por contexto — decisão na Fase 1, documentada no `README`.
 - **Recursos:** `src/main/resources` — `application.yml` / `application-{profile}.yml`, ficheiros de migração (Flyway/Liquibase) em `resources/db/migration` ou equivalente.
 
@@ -70,7 +70,7 @@ flowchart TB
 |------------|---------|
 | Linguagem | **Java** (referência: JDK **25** LTS; mínimo a fixar no build) |
 | Framework | **Spring Boot 4.x** (versão estável alinhada ao [Spring Initializr](https://start.spring.io/) / notas de release) |
-| Build | **Maven** ou **Gradle** (fixar na Fase 1) |
+| Build | **Gradle** Kotlin DSL (`build.gradle.kts`; projecto `instituto-renata-api`). |
 | Base de dados | **PostgreSQL** |
 | Acesso a dados | **Spring Data JPA** e/ou **JdbcTemplate** — detalhar por agregado na implementação |
 | Migrações | **Flyway** ou **Liquibase** (fixar na Fase 1) |
@@ -135,7 +135,7 @@ Resposta de login / `GET /me` deve ser compatível com o que o frontend já mode
 
 ### 7.1 Desenvolvimento local (Docker)
 
-- Em **execução local**, o PostgreSQL deve ser fornecido via **Docker** (ex.: `docker compose` com serviço `postgres` no repositório). Fluxo **padrão** para levantar a BD ao desenvolver.
+- Em **execução local**, o PostgreSQL deve ser fornecido via **Docker** (ex.: compose com serviço `postgres`). Neste ambiente de trabalho o stack habitual está na pasta **`../docker`** (irmã do repositório em `Projects/`); o backend documenta ligação e credenciais em `.env.example` / perfil `local`. Existe ainda um **`docker-compose.yml` opcional na raiz deste repositório** (Postgres isolado noutra porta) para quem não usar o compose partilhado.
 - Uma instalação nativa de PostgreSQL na máquina do desenvolvedor continua possível, desde que a ligação respeite os mesmos parâmetros do perfil `local` (ver §7.2).
 
 ### 7.2 Variável `ENV` e perfis de ligação
@@ -158,6 +158,7 @@ Resposta de login / `GET /me` deve ser compatível com o que o frontend já mode
 
 ## 10. Processo de atualização e documentação
 
+- Resumo de sessão (stack, fase, comandos): **`docs/CONTEXT.md`** — actualizar quando fase ou stack mudarem materialmente (complementa o `docs/PROMPT.md`).
 - Alterações de contrato: atualizar **este ficheiro**, **`docs/PLAN.md`**, **`CHANGELOG.md`** e coordenar com `instituto-renata-fe`.
 - **Modelo de entidades:** se a mudança afectar **domínio ou persistência conceptual** (incluindo o que o utilizador comunicar sobre regras de negócio ou novos módulos), actualizar **`docs/ENTITIES.md`** em conjunto (diagramas, glossário, dúvidas em aberto). Não deixar o desenho de dados só no código ou nas migrações sem espelho neste documento.
 - **`README.md`:** seguir as mesmas diretrizes do frontend — secção **“Funcionalidades em produção”** apenas para o que estiver **implantado em produção** para o cliente; resto no changelog (ver §11).
@@ -173,7 +174,10 @@ Resposta de login / `GET /me` deve ser compatível com o que o frontend já mode
 |------|-----------|
 | 2026-04-18 | Versão inicial: Go, PostgreSQL, Clean Architecture, `cmd/` e features alinhadas ao FE; Go 1.26.2 como referência de ambiente. |
 | 2026-04-17 | PostgreSQL em Docker para desenvolvimento local; variável `ENV` para perfis de ligação à BD (URL, utilizador, senha, etc.). |
+| 2026-04-17 | §7.1: compose partilhado em `../docker` (pasta irmã) como fluxo habitual; compose opcional na raiz do backend. |
 | 2026-04-19 | §8: CORS alinhado ao frontend (`VITE_API_BASE_URL`) e perfis `ENV`. |
 | 2026-04-18 | **Stack:** Java + Spring Boot 4.x; arquitectura e estrutura de repo actualizadas; migrações Flyway/Liquibase; `ENV` mapeado a perfis Spring. |
 | 2026-04-18 | §3.1: referência a `docs/ENTITIES.md` (modelo de domínio). |
 | 2026-04-18 | §3.1 e §10: manutenção obrigatória de `docs/ENTITIES.md` quando o modelo ou o entendimento do domínio mudarem. |
+| 2026-04-18 | §4: build **Gradle** (Kotlin DSL) como default do repositório (substitui Maven). |
+| 2026-04-18 | §10: referência a `docs/CONTEXT.md` para resumo de sessão. |

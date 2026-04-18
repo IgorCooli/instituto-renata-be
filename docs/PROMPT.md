@@ -1,6 +1,6 @@
 # Diretrizes para continuar o desenvolvimento (backend)
 
-Este ficheiro existe para **sessões novas** (outro chat, outro dia, outro dev): lê **primeiro** isto, depois os documentos ligados abaixo.
+Este ficheiro existe para **sessões novas** (outro chat, outro dia, outro dev): para **atolar rápido** sem repetir tudo, lê primeiro **`docs/CONTEXT.md`**; depois **isto** e os documentos ligados abaixo.
 
 ### Manutenção obrigatória
 
@@ -13,6 +13,8 @@ O **`CHANGELOG.md`** continua a registar *o quê* mudou por versão; o **PROMPT*
 
 **Modelo de domínio (`docs/ENTITIES.md`):** sempre que uma decisão ou informação nova **altere entidades, relacionamentos, cardinalidades, glossário ou diagramas** (por exemplo: novo módulo, nova tabela, regra de negócio que muda papéis, contactos vs pacientes, vendas multi-linha, stock), o ficheiro **`docs/ENTITIES.md`** deve ser **actualizado na mesma alteração** (ou no mesmo PR) que o `SPEC.md` / código / migrações, para permanecer a **fonte de diagramas e de entendimento partilhado** do domínio.
 
+**`docs/CONTEXT.md`:** manter **actualizado** quando **fase**, **stack** (build tool, versão major) ou **decisão global** do projecto mudarem — é o “cérebro” curto para chats; **também** é onde se **consolidam** as instruções **não sensíveis** que o utilizador der sobre **como** desenvolver a app (convenções, preferências, workflow); não duplica `ENTITIES`, mas deve reflectir estado, stack e essas preferências (ver secção **Preferências do projeto** e **Cérebro de desenvolvimento** no `CONTEXT`). **Nunca** gravar segredos no `CONTEXT` — só `.env` / gestores de segredos fora do Git.
+
 **Regra explícita para assistentes de IA:** ao concluir **qualquer tarefa** que altere o repositório de forma a mudar “o que está feito” ou “o que falta a seguir”, **não encerrar** sem atualizar as secções acima neste ficheiro. Isto inclui novos endpoints, migrações, auth, módulos de domínio e alterações de contrato com o FE. Se o utilizador (ou o trabalho realizado) der informação que **mude o modelo conceptual de dados ou de negócio**, **actualizar também `docs/ENTITIES.md`** (tabelas, relações, Mermaid, secção de dúvidas). **Única exceção:** mudanças puramente cosméticas sem impacto no produto. Em caso de dúvida, **atualiza o PROMPT** e, se tocar em domínio, o **`ENTITIES.md`**.
 
 ### Para assistentes (IA) e novas sessões — checklist mínima
@@ -22,9 +24,9 @@ Antes de implementar ou alterar contratos, confirma:
 1. **Leste** este `docs/PROMPT.md` e as secções **§2 (arquitetura)**, **§4–6 (auth e contrato)** do **`docs/SPEC.md`**, mais a fase correta no **`docs/PLAN.md`**.
 2. O frontend **já espera** um payload de sessão compatível com (campos lógicos): `email` (string), `role` (`admin` \| `common`), `enabledFeatures` (array com subset de `marketing`, `crm`, `vendas`, `estoque`). Ver tipos em `instituto-renata-fe/src/app/auth/types.ts` e `access/types.ts` — **qualquer mudança de nomes/valores** deve ser coordenada com o FE ou versionada na API.
 3. **Clean Architecture:** domínio sem dependências de Web/persistência concreta no núcleo; adaptadores (controllers, repositórios); composição com **Spring Boot** (`@SpringBootApplication`, `@Configuration`) — ver `docs/SPEC.md` §2–3.
-4. **PostgreSQL** é a BD oficial; em **local**, o Postgres corre em **Docker** (fluxo padrão — ver `docs/SPEC.md` §7.1). Variável **`ENV`** e perfis Spring **condicionam** URL/credenciais da BD (§7.2). Schema só via **migrações** (**Flyway** ou **Liquibase** — fixar na Fase 1).
+4. **PostgreSQL** é a BD oficial; em **local**, o Postgres corre em **Docker** (habitualmente o compose em **`../docker`** — ver `docs/SPEC.md` §7.1). Variável **`ENV`** e perfis Spring **condicionam** URL/credenciais da BD (§7.2). Schema só via **migrações** (**Flyway** ou **Liquibase** — fixar na Fase 1).
 5. Prefixo HTTP sugerido: **`/api/v1`** (ajustar no SPEC se mudares).
-6. **Antes de concluir a tarefa:** atualizar **`docs/PROMPT.md`** conforme a regra de manutenção (obrigatório quando a alteração mudar estado ou próximos passos), **`CHANGELOG.md`**, e o **`README.md`** quando comandos ou stack mudarem de forma material. Se a informação impactar **entidades ou relacionamentos**, atualizar **`docs/ENTITIES.md`** (e o **`docs/SPEC.md`** §3.1 / processo §10 se a referência ao modelo mudar).
+6. **Antes de concluir a tarefa:** atualizar **`docs/PROMPT.md`** conforme a regra de manutenção (obrigatório quando a alteração mudar estado ou próximos passos), **`CHANGELOG.md`**, e o **`README.md`** quando comandos ou stack mudarem de forma material. Se mudar **fase**, **stack** ou **decisão global**, actualizar também **`docs/CONTEXT.md`**. Se a informação impactar **entidades ou relacionamentos**, atualizar **`docs/ENTITIES.md`** (e o **`docs/SPEC.md`** §3.1 / processo §10 se a referência ao modelo mudar).
 
 ---
 
@@ -40,14 +42,15 @@ Antes de implementar ou alterar contratos, confirma:
 
 ## Por onde começar (ordem de leitura)
 
-1. Este guia (**`docs/PROMPT.md`**) — contexto + estado atual.
-2. **`docs/SPEC.md`** — stack, arquitetura, features, PostgreSQL, segurança, contrato §6, changelog/README §11.
-3. **`docs/ENTITIES.md`** — entidades e relacionamentos (rascunho alinhado ao `instituto-renata-fe/docs/SPEC.md`).
-4. **`docs/PLAN.md`** — fases numeradas; **fonte de verdade** para implementação.
-5. **`CHANGELOG.md`** (na raiz) — histórico por versão.
-6. **`README.md`** — stack e regras de documentação/produção.
+1. **`docs/CONTEXT.md`** — resumo mínimo (stack, fase, comandos); **actualizar** quando fase/stack mudarem.
+2. Este guia (**`docs/PROMPT.md`**) — contexto + estado atual.
+3. **`docs/SPEC.md`** — stack, arquitetura, features, PostgreSQL, segurança, contrato §6, changelog/README §11.
+4. **`docs/ENTITIES.md`** — entidades e relacionamentos (rascunho alinhado ao `instituto-renata-fe/docs/SPEC.md`).
+5. **`docs/PLAN.md`** — fases numeradas; **fonte de verdade** para implementação.
+6. **`CHANGELOG.md`** (na raiz) — histórico por versão.
+7. **`README.md`** — stack e regras de documentação/produção.
 
-7. *(Opcional)* **`instituto-renata-fe/docs/SPEC.md`** — visão de produto e módulos §4–§5 para alinhar DTOs e autorização.
+8. *(Opcional)* **`instituto-renata-fe/docs/SPEC.md`** — visão de produto e módulos §4–§5 para alinhar DTOs e autorização.
 
 ---
 
@@ -56,13 +59,13 @@ Antes de implementar ou alterar contratos, confirma:
 | Fase | Tema | Estado |
 |------|------|--------|
 | 0 | Documentação (`SPEC`, `PLAN`, `README`, `CHANGELOG`), diretrizes alinhadas ao FE | **Feito** (documental) |
-| 1 | Spring Boot, PostgreSQL, perfis/`ENV`, Docker local, health, migrações | **Por fazer** — próximo passo |
+| 1 | Spring Boot, PostgreSQL, perfis/`ENV`, Docker local, health, migrações | **Feito** (base Gradle: `instituto-renata-api`, Flyway `V1`, `GET /api/v1/health`) |
 | 2 | Auth + contrato `email` / `role` / `enabledFeatures` | Por fazer |
 | 3 | Tenant e features na BD | Por fazer |
 | 4–6 | APIs CRM, Vendas, Estoque | Por fazer |
 | 7 | Hardening, testes, observabilidade | Por fazer |
 
-**Código de aplicação:** ainda não há projecto **Maven/Gradle** nem código Spring — a primeira entrega útil é a **Fase 1** do `docs/PLAN.md`.
+**Código de aplicação:** projecto **Gradle** (Kotlin DSL) com **Spring Boot 4.0.5**, `com.institutorenata.api`, PostgreSQL + Flyway, Docker Compose, `.env.example`, testes com perfil `test` (H2). Próxima entrega útil: **Fase 2** (auth + contrato FE).
 
 **Referência de ambiente:** JDK **Temurin 25** LTS (`darwin/arm64`); **Spring Boot 4.x** — detalhes no `docs/SPEC.md` §4 e no `CHANGELOG` [Unreleased].
 
@@ -81,12 +84,11 @@ Antes de implementar ou alterar contratos, confirma:
 
 ## Próximo passo sugerido
 
-1. Gerar projecto **Spring Boot 4.x** (Java **25**), **Spring Web**, acesso a dados + **PostgreSQL**, **Flyway** ou **Liquibase** — ver `docs/PLAN.md` Fase 1.
-2. Configurar **`ENV`**, perfis Spring e **`.env.example`**; Postgres local via **Docker Compose**.
-3. Primeira **migração** e **`GET /api/v1/health`**.
-4. Atualizar **`README.md`** com comandos reais (`./mvnw` / `./gradlew bootRun`) e manter **`CHANGELOG.md`**.
+1. **Fase 2** — **Spring Security**, utilizadores na BD, `POST /api/v1/auth/login`, resposta alinhada a `email` / `role` / `enabledFeatures` (`docs/SPEC.md` §6).
+2. Manter **`docs/ENTITIES.md`** quando o modelo de utilizador/tenant evoluir.
+3. Atualizar **`CHANGELOG.md`** por entrega.
 
-Depois: **Fase 2** — autenticação e mesmo contrato de sessão que o frontend espera.
+Depois: **Fase 3** — tenant e `enabledFeatures` persistidos (ver `docs/PLAN.md`).
 
 ---
 
@@ -102,12 +104,9 @@ Depois: **Fase 2** — autenticação e mesmo contrato de sessão que o frontend
 
 ## Comandos locais
 
-*(Após existir wrapper Maven/Gradle e o módulo Spring Boot.)*
-
 ```bash
-# ./mvnw spring-boot:run
-# ./gradlew bootRun
-# ./mvnw test
+./gradlew bootRun
+./gradlew test
 ```
 
 PostgreSQL em **Docker** para desenvolvimento local (padrão); definir **`ENV`** e credenciais/URL conforme `.env.example` (sem segredos no Git).

@@ -1,0 +1,24 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "gradle: compileJava",
+      "type": "shell",
+      "command": "./gradlew",
+      "args": ["compileJava", "--no-daemon"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "windows": {
+        "command": "${workspaceFolder}\\gradlew.bat",
+        "args": ["compileJava", "--no-daemon"]
+      },
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

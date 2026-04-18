@@ -1,0 +1,16 @@
+# Opcional: só se não usares o compose em ../docker (Projects/docker).
+# Mesmos user/password que lá (admin/admin) e base `postgres`; porta 5433 no host para não colidir com Postgres nativo em 5432.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
