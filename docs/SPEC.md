@@ -14,6 +14,10 @@ Documento vivo do repositório **`instituto-renata-be`**, alinhado ao produto em
 
 O projeto segue **Clean Architecture**: dependências de código apontam **sempre para dentro** (domínio no centro). Em Spring Boot, a **inversão de dependências** concretiza-se com interfaces (ports) no núcleo da aplicação e implementações em adaptadores; o **container IoC** do Spring compõe beans na arranque.
 
+![Diagrama em camadas: entrypoint, domain, dataprovider, config](assets/clean-architecture.svg)
+
+*Figura 1 — Pacotes de topo em `com.institutorenata.api` e fluxo lógico (entrada → domínio → dados; `config` compõe beans). Diagrama vectorial em [`docs/assets/clean-architecture.svg`](assets/clean-architecture.svg).*
+
 ```mermaid
 flowchart TB
   subgraph boot [Bootstrap Spring Boot]
@@ -176,6 +180,7 @@ Resposta de login / `GET /me` deve ser compatível com o que o frontend já mode
 | 2026-04-17 | PostgreSQL em Docker para desenvolvimento local; variável `ENV` para perfis de ligação à BD (URL, utilizador, senha, etc.). |
 | 2026-04-17 | §7.1: compose partilhado em `../docker` (pasta irmã) como fluxo habitual; compose opcional na raiz do backend. |
 | 2026-04-17 | §3: pacotes por camada sob `com.institutorenata.api` (entrypoint, domain, dataprovider, config). |
+| 2026-04-18 | §2: figura de arquitectura (`docs/assets/clean-architecture.svg`) no SPEC e no README. |
 | 2026-04-19 | §8: CORS alinhado ao frontend (`VITE_API_BASE_URL`) e perfis `ENV`. |
 | 2026-04-18 | **Stack:** Java + Spring Boot 4.x; arquitectura e estrutura de repo actualizadas; migrações Flyway/Liquibase; `ENV` mapeado a perfis Spring. |
 | 2026-04-18 | §3.1: referência a `docs/ENTITIES.md` (modelo de domínio). |

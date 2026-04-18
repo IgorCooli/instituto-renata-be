@@ -2,6 +2,12 @@
 
 Backend (API) do sistema de gestão de consultório — repositório irmão do **`instituto-renata-fe`**.
 
+## Arquitetura
+
+![Diagrama Clean Architecture — entrypoint, domain, dataprovider, config](docs/assets/clean-architecture.svg)
+
+Visão completa, tabela de camadas e contratos: [`docs/SPEC.md`](docs/SPEC.md) §2–3. O ficheiro vectorial está em [`docs/assets/clean-architecture.svg`](docs/assets/clean-architecture.svg) (podes substituir por PNG se quiseres outra figura, mantendo o mesmo caminho ou actualizando estas referências).
+
 ## Stack
 
 - **Java** **25** (Temurin LTS — ver `docs/SPEC.md` §4)

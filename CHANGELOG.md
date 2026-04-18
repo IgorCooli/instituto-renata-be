@@ -6,6 +6,10 @@ O formato segue a ideia de [Keep a Changelog](https://keepachangelog.com/pt-BR/1
 
 ## [Unreleased]
 
+### Added
+
+- Diagrama de arquitectura vectorial [`docs/assets/clean-architecture.svg`](docs/assets/clean-architecture.svg) referenciado em `README` e `docs/SPEC.md` §2.
+
 ### Changed
 
 - Estrutura de pacotes **Clean Architecture** (`entrypoint`, `domain` com `port`/`usecase`, `dataprovider`, `config`); `HealthController` em `entrypoint`.
