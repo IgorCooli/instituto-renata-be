@@ -56,7 +56,7 @@ flowchart TB
 
 - **Build:** **Gradle** (Kotlin DSL — `build.gradle.kts`) — registado no `README`.
 - **Código:** árvore `src/main/java` (ou `src/main/kotlin` se no futuro se optar por Kotlin) com **pacote base** único (ex.: `com.institutorenata.api` — alinhado ao nome do projecto Gradle).
-- Organização **por camada** sob `com.institutorenata.api` (alinhada ao diagrama da §2): `domain` · `application` (`port.in`, `port.out`, `usecase`) · `adapter.in.web` · `adapter.out.persistence` · `config`. Novos contextos (ex. `auth`, `crm`) aparecem como subpacotes **dentro** de cada camada quando fizer sentido.
+- Organização **por camada** sob `com.institutorenata.api`: **`entrypoint`** (REST, entrada) · **`domain`** (entidades; subpacotes `port.in`, `port.out`, `usecase`) · **`dataprovider`** (persistência e integrações) · **`config`** (Spring, composição). Novos contextos (ex. `auth`, `crm`) como subpacotes **dentro** de cada camada quando fizer sentido.
 - **Recursos:** `src/main/resources` — `application.yml` / `application-{profile}.yml`, ficheiros de migração (Flyway/Liquibase) em `resources/db/migration` ou equivalente.
 
 ### 3.1 Modelo de domínio (referência)
@@ -175,7 +175,7 @@ Resposta de login / `GET /me` deve ser compatível com o que o frontend já mode
 | 2026-04-18 | Versão inicial: Go, PostgreSQL, Clean Architecture, `cmd/` e features alinhadas ao FE; Go 1.26.2 como referência de ambiente. |
 | 2026-04-17 | PostgreSQL em Docker para desenvolvimento local; variável `ENV` para perfis de ligação à BD (URL, utilizador, senha, etc.). |
 | 2026-04-17 | §7.1: compose partilhado em `../docker` (pasta irmã) como fluxo habitual; compose opcional na raiz do backend. |
-| 2026-04-17 | §3: pacotes por camada sob `com.institutorenata.api` (domain, application, adapter, config). |
+| 2026-04-17 | §3: pacotes por camada sob `com.institutorenata.api` (entrypoint, domain, dataprovider, config). |
 | 2026-04-19 | §8: CORS alinhado ao frontend (`VITE_API_BASE_URL`) e perfis `ENV`. |
 | 2026-04-18 | **Stack:** Java + Spring Boot 4.x; arquitectura e estrutura de repo actualizadas; migrações Flyway/Liquibase; `ENV` mapeado a perfis Spring. |
 | 2026-04-18 | §3.1: referência a `docs/ENTITIES.md` (modelo de domínio). |

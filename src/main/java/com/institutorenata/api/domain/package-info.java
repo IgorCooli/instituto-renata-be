@@ -1,2 +1,2 @@
-/** Domínio: entidades, value objects e regras — sem dependências de Web ou persistência concreta. */
+/** Domínio: entidades, regras; subpacotes `port` e `usecase` para casos de uso e contratos. */
 package com.institutorenata.api.domain;

@@ -33,7 +33,7 @@ API REST **Java / Spring Boot** para **gestão de consultório**, multi-tenant p
 | Linguagem | Java **25** (Temurin LTS referência) |
 | Framework | **Spring Boot 4.0.5** |
 | Build | **Gradle** Kotlin DSL (`build.gradle.kts`, `settings.gradle.kts`, projecto `instituto-renata-api`) |
-| Pacote base | `com.institutorenata.api` |
+| Pacote base | `com.institutorenata.api` (`entrypoint`, `domain`, `dataprovider`, `config`) |
 | BD | **PostgreSQL** (runtime); migrações **Flyway** (`src/main/resources/db/migration`) |
 | Testes unitários / contexto | Perfil `test`, **H2** em memória (tarefa Gradle `test` define `SPRING_PROFILES_ACTIVE=test`) |
 | API | Prefixo **`/api/v1`** |

@@ -8,7 +8,7 @@ O formato segue a ideia de [Keep a Changelog](https://keepachangelog.com/pt-BR/1
 
 ### Changed
 
-- Estrutura de pacotes **Clean Architecture** por camada (`domain`, `application`, `adapter`, `config`); `HealthController` em `adapter.in.web`.
+- Estrutura de pacotes **Clean Architecture** (`entrypoint`, `domain` com `port`/`usecase`, `dataprovider`, `config`); `HealthController` em `entrypoint`.
 - Postgres local: stack principal em **`../docker`** (`Projects/docker`, serviço `postgres`, `localhost:5432`, base **`postgres`**, user/password **`admin`** no `.env` de lá); defaults do perfil `local` e IDE alinhados. `docker-compose.yml` na raiz do repo = Postgres opcional em **`localhost:5433`** (mesma base/credenciais). `README`, `docs/SPEC.md` §7.1, `docs/CONTEXT.md` actualizados.
 - Build: migração de **Maven** para **Gradle** Kotlin DSL (`build.gradle.kts`, `settings.gradle.kts`, Gradle Wrapper 9.4.1); removidos `pom.xml`, `mvnw` e `.mvn/`. `README`, `docs/SPEC.md`, `docs/PLAN.md`, `docs/PROMPT.md`, `docs/CONTEXT.md` e `.env.example` actualizados.
 - `docs/CONTEXT.md` e `docs/PROMPT.md`: `CONTEXT` como **cérebro** para informação **não sensível** sobre como desenvolver a app (secções **Cérebro de desenvolvimento** e **Preferências do projeto**).

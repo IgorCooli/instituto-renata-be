@@ -1,4 +1,4 @@
-package com.institutorenata.api.adapter.in.web;
+package com.institutorenata.api.entrypoint;
 
 import java.sql.Connection;
 import java.util.LinkedHashMap;
