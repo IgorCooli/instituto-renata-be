@@ -16,6 +16,7 @@ Backend (API) do sistema de gestão de consultório — repositório irmão do *
 - [Guia de continuidade](docs/PROMPT.md) — contexto, estado do projeto e próximo passo (útil em sessões novas).
 - [Especificação (API, domínio, contratos)](docs/SPEC.md) — inclui features alinhadas ao frontend, PostgreSQL e arquitetura.
 - [Plano de implementação](docs/PLAN.md) — fases e ordem sugerida.
+- [Entidades e relacionamentos](docs/ENTITIES.md) — modelo de domínio (rascunho; diagramas Mermaid).
 - [Changelog](CHANGELOG.md) — histórico de mudanças por versão.
 
 Build: **Maven** (`pom.xml`) ou **Gradle** (`build.gradle.kts`) — conforme o projecto na Fase 1.

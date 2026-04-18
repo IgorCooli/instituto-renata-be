@@ -59,6 +59,11 @@ flowchart TB
 - Organização sugerida: **por feature** (ex.: `auth`, `crm`, `vendas`, `estoque`) com subpacotes `web`, `application`, `domain`, `persistence` **ou** por camada com subpacotes por contexto — decisão na Fase 1, documentada no `README`.
 - **Recursos:** `src/main/resources` — `application.yml` / `application-{profile}.yml`, ficheiros de migração (Flyway/Liquibase) em `resources/db/migration` ou equivalente.
 
+### 3.1 Modelo de domínio (referência)
+
+- Rascunho de **entidades**, relacionamentos e diagramas (alinhado ao `instituto-renata-fe/docs/SPEC.md`): **`docs/ENTITIES.md`**.
+- **Manutenção obrigatória:** qualquer informação ou decisão que **altere** o entendimento do modelo (novas entidades ou tabelas, relações, cardinalidades, nomes estáveis de agregados, regras que afectem o desenho ER) deve ser reflectida **no mesmo PR ou alteração** em **`docs/ENTITIES.md`** — actualizar texto, listas, diagramas Mermaid e a secção de dúvidas em aberto. O `docs/PROMPT.md` e o `docs/PLAN.md` incorporam esta regra por referência.
+
 ## 4. Stack técnica
 
 | Componente | Escolha |
@@ -154,6 +159,7 @@ Resposta de login / `GET /me` deve ser compatível com o que o frontend já mode
 ## 10. Processo de atualização e documentação
 
 - Alterações de contrato: atualizar **este ficheiro**, **`docs/PLAN.md`**, **`CHANGELOG.md`** e coordenar com `instituto-renata-fe`.
+- **Modelo de entidades:** se a mudança afectar **domínio ou persistência conceptual** (incluindo o que o utilizador comunicar sobre regras de negócio ou novos módulos), actualizar **`docs/ENTITIES.md`** em conjunto (diagramas, glossário, dúvidas em aberto). Não deixar o desenho de dados só no código ou nas migrações sem espelho neste documento.
 - **`README.md`:** seguir as mesmas diretrizes do frontend — secção **“Funcionalidades em produção”** apenas para o que estiver **implantado em produção** para o cliente; resto no changelog (ver §11).
 
 ### 11. Changelog e README (alinhamento ao frontend)
@@ -169,3 +175,5 @@ Resposta de login / `GET /me` deve ser compatível com o que o frontend já mode
 | 2026-04-17 | PostgreSQL em Docker para desenvolvimento local; variável `ENV` para perfis de ligação à BD (URL, utilizador, senha, etc.). |
 | 2026-04-19 | §8: CORS alinhado ao frontend (`VITE_API_BASE_URL`) e perfis `ENV`. |
 | 2026-04-18 | **Stack:** Java + Spring Boot 4.x; arquitectura e estrutura de repo actualizadas; migrações Flyway/Liquibase; `ENV` mapeado a perfis Spring. |
+| 2026-04-18 | §3.1: referência a `docs/ENTITIES.md` (modelo de domínio). |
+| 2026-04-18 | §3.1 e §10: manutenção obrigatória de `docs/ENTITIES.md` quando o modelo ou o entendimento do domínio mudarem. |

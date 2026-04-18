@@ -11,7 +11,9 @@ Este ficheiro existe para **sessões novas** (outro chat, outro dia, outro dev):
 
 O **`CHANGELOG.md`** continua a registar *o quê* mudou por versão; o **PROMPT** é o **estado atual em linguagem natural** para quem abre o projeto de novo. Se o `PLAN.md` ou o `SPEC.md` mudarem de forma material, o PROMPT deve acompanhar.
 
-**Regra explícita para assistentes de IA:** ao concluir **qualquer tarefa** que altere o repositório de forma a mudar “o que está feito” ou “o que falta a seguir”, **não encerrar** sem atualizar as secções acima neste ficheiro. Isto inclui novos endpoints, migrações, auth, módulos de domínio e alterações de contrato com o FE. **Única exceção:** mudanças puramente cosméticas sem impacto no produto. Em caso de dúvida, **atualiza o PROMPT**.
+**Modelo de domínio (`docs/ENTITIES.md`):** sempre que uma decisão ou informação nova **altere entidades, relacionamentos, cardinalidades, glossário ou diagramas** (por exemplo: novo módulo, nova tabela, regra de negócio que muda papéis, contactos vs pacientes, vendas multi-linha, stock), o ficheiro **`docs/ENTITIES.md`** deve ser **actualizado na mesma alteração** (ou no mesmo PR) que o `SPEC.md` / código / migrações, para permanecer a **fonte de diagramas e de entendimento partilhado** do domínio.
+
+**Regra explícita para assistentes de IA:** ao concluir **qualquer tarefa** que altere o repositório de forma a mudar “o que está feito” ou “o que falta a seguir”, **não encerrar** sem atualizar as secções acima neste ficheiro. Isto inclui novos endpoints, migrações, auth, módulos de domínio e alterações de contrato com o FE. Se o utilizador (ou o trabalho realizado) der informação que **mude o modelo conceptual de dados ou de negócio**, **actualizar também `docs/ENTITIES.md`** (tabelas, relações, Mermaid, secção de dúvidas). **Única exceção:** mudanças puramente cosméticas sem impacto no produto. Em caso de dúvida, **atualiza o PROMPT** e, se tocar em domínio, o **`ENTITIES.md`**.
 
 ### Para assistentes (IA) e novas sessões — checklist mínima
 
@@ -22,7 +24,7 @@ Antes de implementar ou alterar contratos, confirma:
 3. **Clean Architecture:** domínio sem dependências de Web/persistência concreta no núcleo; adaptadores (controllers, repositórios); composição com **Spring Boot** (`@SpringBootApplication`, `@Configuration`) — ver `docs/SPEC.md` §2–3.
 4. **PostgreSQL** é a BD oficial; em **local**, o Postgres corre em **Docker** (fluxo padrão — ver `docs/SPEC.md` §7.1). Variável **`ENV`** e perfis Spring **condicionam** URL/credenciais da BD (§7.2). Schema só via **migrações** (**Flyway** ou **Liquibase** — fixar na Fase 1).
 5. Prefixo HTTP sugerido: **`/api/v1`** (ajustar no SPEC se mudares).
-6. **Antes de concluir a tarefa:** atualizar **`docs/PROMPT.md`** conforme a regra de manutenção (obrigatório quando a alteração mudar estado ou próximos passos), **`CHANGELOG.md`**, e o **`README.md`** quando comandos ou stack mudarem de forma material.
+6. **Antes de concluir a tarefa:** atualizar **`docs/PROMPT.md`** conforme a regra de manutenção (obrigatório quando a alteração mudar estado ou próximos passos), **`CHANGELOG.md`**, e o **`README.md`** quando comandos ou stack mudarem de forma material. Se a informação impactar **entidades ou relacionamentos**, atualizar **`docs/ENTITIES.md`** (e o **`docs/SPEC.md`** §3.1 / processo §10 se a referência ao modelo mudar).
 
 ---
 
@@ -40,11 +42,12 @@ Antes de implementar ou alterar contratos, confirma:
 
 1. Este guia (**`docs/PROMPT.md`**) — contexto + estado atual.
 2. **`docs/SPEC.md`** — stack, arquitetura, features, PostgreSQL, segurança, contrato §6, changelog/README §11.
-3. **`docs/PLAN.md`** — fases numeradas; **fonte de verdade** para implementação.
-4. **`CHANGELOG.md`** (na raiz) — histórico por versão.
-5. **`README.md`** — stack e regras de documentação/produção.
+3. **`docs/ENTITIES.md`** — entidades e relacionamentos (rascunho alinhado ao `instituto-renata-fe/docs/SPEC.md`).
+4. **`docs/PLAN.md`** — fases numeradas; **fonte de verdade** para implementação.
+5. **`CHANGELOG.md`** (na raiz) — histórico por versão.
+6. **`README.md`** — stack e regras de documentação/produção.
 
-6. *(Opcional)* **`instituto-renata-fe/docs/SPEC.md`** — visão de produto e módulos §4–§5 para alinhar DTOs e autorização.
+7. *(Opcional)* **`instituto-renata-fe/docs/SPEC.md`** — visão de produto e módulos §4–§5 para alinhar DTOs e autorização.
 
 ---
 

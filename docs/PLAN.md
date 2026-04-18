@@ -33,10 +33,11 @@ flowchart LR
 **Passos:**
 
 1. Manter `docs/SPEC.md` e `docs/PLAN.md` atualizados.
-2. `README.md` na raiz: stack (Java, Spring Boot, PostgreSQL), como correr (quando existir), links para docs; secção **produção** como no `instituto-renata-fe`.
-3. `CHANGELOG.md` na raiz (Keep a Changelog / semver, espírito idêntico ao frontend).
+2. Manter **`docs/ENTITIES.md`** alinhado ao domínio: sempre que decisões de produto ou implementação **alterem entidades, relações ou diagramas**, actualizar este ficheiro **na mesma alteração** que `SPEC`/código/migrações (regra espelhada no `docs/PROMPT.md` e no `docs/SPEC.md` §3.1 e §10).
+3. `README.md` na raiz: stack (Java, Spring Boot, PostgreSQL), como correr (quando existir), links para docs; secção **produção** como no `instituto-renata-fe`.
+4. `CHANGELOG.md` na raiz (Keep a Changelog / semver, espírito idêntico ao frontend).
 
-**Saída:** processo claro antes do primeiro build Maven/Gradle útil.
+**Saída:** processo claro antes do primeiro build Maven/Gradle útil; modelo de entidades documentado e com regra de manutenção explícita.
 
 ---
 
@@ -142,9 +143,17 @@ flowchart LR
 
 ---
 
+## Documentação de domínio (`docs/ENTITIES.md`)
+
+- Durante **todas as fases**, quando o trabalho introduzir ou mudar **tabelas, entidades JPA, regras de negócio multi-tenant, CRM, vendas ou estoque** de forma que altere o **modelo conceptual**, actualizar **`docs/ENTITIES.md`** (e o `CHANGELOG.md` quando for notável).
+- Isto aplica-se a informação vinda do utilizador, do `instituto-renata-fe/docs/SPEC.md` ou de refinamentos de API — o documento de entidades deve reflectir o estado acordado do entendimento.
+
+---
+
 ## Histórico de revisões
 
 | Data | Alteração |
 |------|-----------|
 | 2026-04-18 | Plano inicial: Go, Postgres, Clean Architecture, `cmd/`, fases alinhadas às features do FE. |
 | 2026-04-18 | **Stack:** Java, Spring Boot, Fase 1 com Maven/Gradle e Flyway/Liquibase; composição Spring em vez de `cmd/`. |
+| 2026-04-18 | Fase 0 e secção **Documentação de domínio:** manutenção obrigatória de `docs/ENTITIES.md` quando o modelo mudar. |
