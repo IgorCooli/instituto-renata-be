@@ -8,7 +8,7 @@ Backend (API) do sistema de gestão de consultório — repositório irmão do *
 - **Spring Boot 4.0.x** (**Gradle** Kotlin DSL — `build.gradle.kts`, projecto `instituto-renata-api`)
 - **PostgreSQL** (runtime)
 - **Flyway** (migrações em `src/main/resources/db/migration`)
-- **Clean Architecture** (mapeada a camadas Spring) — ver `docs/SPEC.md` §2
+- **Clean Architecture** (camadas sob `com.institutorenata.api`: `domain`, `application.port` / `usecase`, `adapter.in.web`, `adapter.out.persistence`, `config`) — ver `docs/SPEC.md` §2–3
 - API REST sob prefixo versionado (`/api/v1/...`)
 
 ## Documentação
