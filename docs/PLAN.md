@@ -1,6 +1,6 @@
 # Plano de implementação (backend)
 
-Plano incremental para **`instituto-renata-be`** em **Go**, com **PostgreSQL** e **Clean Architecture** (ver `docs/SPEC.md` §2). O **`cmd/`** concentra o bootstrap e a **injeção de dependências por feature** (auth, CRM, vendas, estoque, …).
+Plano incremental para **`instituto-renata-be`** em **Java**, **Spring Boot**, **PostgreSQL** e organização em camadas alinhada a **Clean Architecture** (ver `docs/SPEC.md` §2). O **arranque Spring** (`@SpringBootApplication`) e classes `@Configuration` concentram a **composição** e a **injeção de dependências por feature** (auth, CRM, vendas, estoque, …).
 
 ## Visão das fases
 
@@ -8,7 +8,7 @@ Plano incremental para **`instituto-renata-be`** em **Go**, com **PostgreSQL** e
 flowchart LR
   subgraph base [Base]
     P0[Fase 0 — Docs]
-    P1[Fase 1 — Módulo Go + PostgreSQL]
+    P1[Fase 1 — Spring Boot + PostgreSQL]
     P2[Fase 2 — Auth + contrato FE]
     P3[Fase 3 — Tenant e features]
   end
@@ -33,28 +33,27 @@ flowchart LR
 **Passos:**
 
 1. Manter `docs/SPEC.md` e `docs/PLAN.md` atualizados.
-2. `README.md` na raiz: stack (Go, PostgreSQL), como correr (quando existir), links para docs; secção **produção** como no `instituto-renata-fe`.
+2. `README.md` na raiz: stack (Java, Spring Boot, PostgreSQL), como correr (quando existir), links para docs; secção **produção** como no `instituto-renata-fe`.
 3. `CHANGELOG.md` na raiz (Keep a Changelog / semver, espírito idêntico ao frontend).
 
-**Saída:** processo claro antes do primeiro `go build` útil.
+**Saída:** processo claro antes do primeiro build Maven/Gradle útil.
 
 ---
 
-## Fase 1 — Projeto Go executável + PostgreSQL
+## Fase 1 — Projeto Spring Boot executável + PostgreSQL
 
-**Objetivo:** binário sobe, conecta ao Postgres, health check.
+**Objetivo:** aplicação sobe, conecta ao Postgres, migrações aplicadas, health check HTTP.
 
 **Passos:**
 
-1. `go mod init` / árvore base com **`cmd/api`** (ou nome acordado): `main` mínimo.
-2. Pacotes `internal/...` conforme Clean Architecture (domínio / casos de uso / adapters).
-3. Driver PostgreSQL (`database/sql` + `pgx` ou `lib/pq` — fixar no código e no SPEC).
-4. Ficheiro `.env.example` com **`ENV`** (perfil de ambiente) e variáveis de ligação à BD **por perfil** ou derivadas de `ENV` (sem segredos versionados) — ver `docs/SPEC.md` §7.2.
-5. PostgreSQL em **Docker** como forma padrão de correr a BD em desenvolvimento local (ex.: Compose no repositório), alinhado a §7.1 do SPEC.
-6. Migrações iniciais (schema vazio ou tabela de metadados).
-7. `GET /api/v1/health` (liveness).
+1. Criar projecto **Spring Boot 4.x** (via [Spring Initializr](https://start.spring.io/) ou equivalente): **Java 25**, dependências mínimas — **Spring Web**, **Spring Data JPA** (ou JDBC + escolha documentada), **PostgreSQL driver**, **Flyway** ou **Liquibase** (fixar no repo e no SPEC).
+2. **Maven** ou **Gradle** — fixar um; grupo `artifact` / pacote base alinhados ao repositório (documentar no `README`).
+3. Configurar **`ENV`** e perfis Spring (`application.yml`, `application-local.yml`, …) para datasource por ambiente — ver `docs/SPEC.md` §7.2; ficheiro **`.env.example`** (sem segredos).
+4. **Docker Compose** com **PostgreSQL** como forma padrão de BD em desenvolvimento local (§7.1 do SPEC).
+5. Primeira **migração** (schema mínimo ou tabela de metadados).
+6. Expor **`GET /api/v1/health`** (liveness; pode incluir verificação de ligação à BD conforme convenção do projecto).
 
-**Saída:** API responde em desenvolvimento com Postgres (preferencialmente via Docker local) e configuração de BD seleccionada por `ENV`.
+**Saída:** API responde em desenvolvimento com Postgres (preferencialmente via Docker local) e configuração seleccionada por **`ENV`** / perfil.
 
 ---
 
@@ -66,8 +65,8 @@ flowchart LR
 
 1. Tabelas de utilizador (email, hash de password, `role`, vínculo a tenant quando existir).
 2. `POST /api/v1/auth/login`, logout conforme SPEC; payload com `email`, `role`, `enabledFeatures`.
-3. Middleware JWT (ou sessão) e `GET /api/v1/me` se necessário.
-4. No **`cmd/api`**: wiring que regista serviços de **auth** e handlers HTTP (injeção explícita por construtor).
+3. **Spring Security** com JWT (ou sessão) e `GET /api/v1/me` se necessário.
+4. **Composição:** beans de **auth** (serviços + controllers) registados na configuração da aplicação, por pacote **feature** `auth`.
 
 **Saída:** frontend pode apontar o client HTTP para o backend mantendo o contrato documentado no SPEC.
 
@@ -91,9 +90,9 @@ flowchart LR
 
 **Objetivo:** API alinhada ao §4.3 do spec do produto (frontend).
 
-**Passos:** entidades e repositórios PostgreSQL; casos de uso; handlers REST; testes nos casos de uso com ports mockados.
+**Passos:** entidades e repositórios; serviços de aplicação; controllers REST; testes nos casos de uso com dependências mockadas.
 
-**Wiring:** em `cmd/api`, registar dependências do módulo **CRM** (repositório real + handlers).
+**Composição:** registar beans do módulo **CRM** (persistência + web) na aplicação.
 
 ---
 
@@ -101,7 +100,7 @@ flowchart LR
 
 **Objetivo:** orçamentos/oportunidades conforme §4.4 do spec do produto.
 
-**Passos:** idem estrutura CRM; transações onde necessário.
+**Passos:** idem estrutura CRM; transações onde necessário (`@Transactional`).
 
 ---
 
@@ -117,14 +116,14 @@ flowchart LR
 
 **Objetivo:** preparar integração contínua com o frontend e deploy.
 
-**Passos:** testes de integração com Postgres de teste; revisão de segurança; documentação OpenAPI opcional; logs estruturados.
+**Passos:** testes de integração com Postgres de teste (Testcontainers opcional); revisão de segurança; documentação OpenAPI opcional (**springdoc-openapi** ou equivalente); logs estruturados e métricas conforme SPEC §9.
 
 ---
 
-## Bootstrap e `cmd/` (injeção por feature)
+## Bootstrap e composição (injeção por feature)
 
-- Cada binário em **`cmd/<nome>`** deve apenas: ler config, abrir **PostgreSQL**, construir implementações concretas dos **ports** (repositórios), instanciar **casos de uso**, registar **handlers** no router **por feature** (auth, CRM, vendas, estoque).
-- Evitar “service locator” global opaco; preferir funções `NewServer(deps ...)` ou composição explícita legível.
+- A classe de arranque **`@SpringBootApplication`** e pacotes **`@Configuration`** devem compor a aplicação de forma legível: abrir **DataSource** / **EntityManager** via Spring Boot, instanciar **adaptadores** dos repositórios, **serviços de aplicação** e **controllers** **por feature** (auth, CRM, vendas, estoque).
+- Preferir construtores e **injeção por construtor**; evitar “service locator” global opaco.
 
 ---
 
@@ -133,7 +132,7 @@ flowchart LR
 | Ordem | Foco |
 |-------|------|
 | 0 | Docs, README, changelog |
-| 1 | Go + PostgreSQL + health |
+| 1 | Spring Boot + PostgreSQL + health |
 | 2 | Auth + contrato FE |
 | 3 | Tenant e features na BD |
 | 4 | CRM |
@@ -148,3 +147,4 @@ flowchart LR
 | Data | Alteração |
 |------|-----------|
 | 2026-04-18 | Plano inicial: Go, Postgres, Clean Architecture, `cmd/`, fases alinhadas às features do FE. |
+| 2026-04-18 | **Stack:** Java, Spring Boot, Fase 1 com Maven/Gradle e Flyway/Liquibase; composição Spring em vez de `cmd/`. |

@@ -4,7 +4,7 @@ Este ficheiro existe para **sessões novas** (outro chat, outro dia, outro dev):
 
 ### Manutenção obrigatória
 
-**Toda alteração** que mude o estado do desenvolvimento (código Go, schema PostgreSQL, endpoints, contrato com o frontend, conclusão de fase, nova prioridade, etc.) deve vir acompanhada de **atualização deste `docs/PROMPT.md` na mesma alteração** (ou no mesmo PR), para refletir:
+**Toda alteração** que mude o estado do desenvolvimento (código Java/Spring, schema PostgreSQL, endpoints, contrato com o frontend, conclusão de fase, nova prioridade, etc.) deve vir acompanhada de **atualização deste `docs/PROMPT.md` na mesma alteração** (ou no mesmo PR), para refletir:
 
 - **O que já foi feito** — secção *O que já foi feito (resumo)* (tabela ou bullets).
 - **Os próximos passos** — secção *Próximo passo sugerido*, alinhada ao `docs/PLAN.md` e ao estado real do código.
@@ -19,8 +19,8 @@ Antes de implementar ou alterar contratos, confirma:
 
 1. **Leste** este `docs/PROMPT.md` e as secções **§2 (arquitetura)**, **§4–6 (auth e contrato)** do **`docs/SPEC.md`**, mais a fase correta no **`docs/PLAN.md`**.
 2. O frontend **já espera** um payload de sessão compatível com (campos lógicos): `email` (string), `role` (`admin` \| `common`), `enabledFeatures` (array com subset de `marketing`, `crm`, `vendas`, `estoque`). Ver tipos em `instituto-renata-fe/src/app/auth/types.ts` e `access/types.ts` — **qualquer mudança de nomes/valores** deve ser coordenada com o FE ou versionada na API.
-3. **Clean Architecture:** código de domínio **sem** importar `net/http`, drivers SQL ou frameworks no núcleo; adaptadores em `internal/...`; composição só em **`cmd/`**.
-4. **PostgreSQL** é a BD oficial; em **local**, o Postgres corre em **Docker** (fluxo padrão — ver `docs/SPEC.md` §7.1). Variável **`ENV`** selecciona o perfil e **condiciona** URL/credenciais da BD (§7.2). Schema só via **migrações** versionadas (ferramenta a fixar na Fase 1).
+3. **Clean Architecture:** domínio sem dependências de Web/persistência concreta no núcleo; adaptadores (controllers, repositórios); composição com **Spring Boot** (`@SpringBootApplication`, `@Configuration`) — ver `docs/SPEC.md` §2–3.
+4. **PostgreSQL** é a BD oficial; em **local**, o Postgres corre em **Docker** (fluxo padrão — ver `docs/SPEC.md` §7.1). Variável **`ENV`** e perfis Spring **condicionam** URL/credenciais da BD (§7.2). Schema só via **migrações** (**Flyway** ou **Liquibase** — fixar na Fase 1).
 5. Prefixo HTTP sugerido: **`/api/v1`** (ajustar no SPEC se mudares).
 6. **Antes de concluir a tarefa:** atualizar **`docs/PROMPT.md`** conforme a regra de manutenção (obrigatório quando a alteração mudar estado ou próximos passos), **`CHANGELOG.md`**, e o **`README.md`** quando comandos ou stack mudarem de forma material.
 
@@ -30,8 +30,8 @@ Antes de implementar ou alterar contratos, confirma:
 
 **API (REST)** para o mesmo produto que o frontend **`instituto-renata-fe`**: gestão de consultório, **multi-tenant** por pacotes, com as mesmas **features** (`marketing`, `crm`, `vendas`, `estoque`) e papéis **`admin`** / **`common`**.
 
-- **Stack definida:** **Go**, **PostgreSQL**, **Clean Architecture** (dependências para dentro: entidades → casos de uso → adaptadores; ver `docs/SPEC.md` §2).
-- **Bootstrap:** pasta **`cmd/`** — composição do binário, **injeção de dependências por feature** (auth, CRM, vendas, estoque), sem lógica de negócio no `main`.
+- **Stack definida:** **Java**, **Spring Boot**, **PostgreSQL**, organização em camadas alinhada a **Clean Architecture** (ver `docs/SPEC.md` §2).
+- **Bootstrap:** **`@SpringBootApplication`** e configuração Spring — composição do contexto, **injeção de dependências por feature** (auth, CRM, vendas, estoque), sem lógica de negócio nas classes só de configuração.
 - O **cliente** consome JSON versionado (ex. `/api/v1`); contrato de login/sessão alinhado ao que o FE já modela em mock.
 
 ---
@@ -53,15 +53,15 @@ Antes de implementar ou alterar contratos, confirma:
 | Fase | Tema | Estado |
 |------|------|--------|
 | 0 | Documentação (`SPEC`, `PLAN`, `README`, `CHANGELOG`), diretrizes alinhadas ao FE | **Feito** (documental) |
-| 1 | `go mod`, `cmd/api`, PostgreSQL, health, migrações | **Por fazer** — próximo passo |
+| 1 | Spring Boot, PostgreSQL, perfis/`ENV`, Docker local, health, migrações | **Por fazer** — próximo passo |
 | 2 | Auth + contrato `email` / `role` / `enabledFeatures` | Por fazer |
 | 3 | Tenant e features na BD | Por fazer |
 | 4–6 | APIs CRM, Vendas, Estoque | Por fazer |
 | 7 | Hardening, testes, observabilidade | Por fazer |
 
-**Código de aplicação:** ainda não há `go.mod` nem binário — a primeira entrega útil é a **Fase 1** do `docs/PLAN.md`.
+**Código de aplicação:** ainda não há projecto **Maven/Gradle** nem código Spring — a primeira entrega útil é a **Fase 1** do `docs/PLAN.md`.
 
-**Referência de ambiente** (não versionada como contrato até existir `go.mod`): Go **1.26.2** `darwin/arm64` — mencionado no `CHANGELOG` [Unreleased].
+**Referência de ambiente:** JDK **Temurin 25** LTS (`darwin/arm64`); **Spring Boot 4.x** — detalhes no `docs/SPEC.md` §4 e no `CHANGELOG` [Unreleased].
 
 **Endpoints a implementar (ordem lógica; detalhes no `docs/SPEC.md`):**
 
@@ -78,11 +78,10 @@ Antes de implementar ou alterar contratos, confirma:
 
 ## Próximo passo sugerido
 
-1. **`go mod init`** com o path do módulo acordado (ex. `github.com/<org>/instituto-renata-be`).
-2. Criar **`cmd/api/main.go`** (ou nome acordado) com servidor mínimo.
-3. Ligar **PostgreSQL** (driver + pool): **`ENV`** + parâmetros de BD por perfil em `.env.example`; Postgres local via **Docker** (Compose ou equivalente); primeira **migração**.
-4. Expor **`GET /api/v1/health`** (ou path definido no SPEC).
-5. Atualizar **`README.md`** com comandos reais (`go run ./cmd/api`) e **`CHANGELOG.md`**.
+1. Gerar projecto **Spring Boot 4.x** (Java **25**), **Spring Web**, acesso a dados + **PostgreSQL**, **Flyway** ou **Liquibase** — ver `docs/PLAN.md` Fase 1.
+2. Configurar **`ENV`**, perfis Spring e **`.env.example`**; Postgres local via **Docker Compose**.
+3. Primeira **migração** e **`GET /api/v1/health`**.
+4. Atualizar **`README.md`** com comandos reais (`./mvnw` / `./gradlew bootRun`) e manter **`CHANGELOG.md`**.
 
 Depois: **Fase 2** — autenticação e mesmo contrato de sessão que o frontend espera.
 
@@ -91,8 +90,8 @@ Depois: **Fase 2** — autenticação e mesmo contrato de sessão que o frontend
 ## Como trabalhar em cada entrega
 
 1. Ler a fase no **`docs/PLAN.md`** e requisitos no **`docs/SPEC.md`**.
-2. Respeitar **Clean Architecture**: domínio sem importar `net/http` nem drivers SQL; implementações em `internal/...`.
-3. Registar wiring novo no **`cmd/`** por feature (repositórios + handlers).
+2. Respeitar **Clean Architecture** (SPEC §2): serviços de aplicação e domínio desacoplados de detalhes de framework onde fizer sentido; controllers e persistência como adaptadores.
+3. Registar composição nova (beans) por **feature** na configuração Spring (pacotes `auth`, `crm`, …).
 4. Migrações versionadas para qualquer alteração de schema.
 5. Atualizar **`CHANGELOG.md`**; **`README.md` “Funcionalidades em produção”** só com o que estiver **em produção** para o cliente (igual ao frontend).
 
@@ -100,11 +99,12 @@ Depois: **Fase 2** — autenticação e mesmo contrato de sessão que o frontend
 
 ## Comandos locais
 
-*(Preencher após existir `go.mod` e o primeiro binário.)*
+*(Após existir wrapper Maven/Gradle e o módulo Spring Boot.)*
 
 ```bash
-# go run ./cmd/api
-# go test ./...
+# ./mvnw spring-boot:run
+# ./gradlew bootRun
+# ./mvnw test
 ```
 
 PostgreSQL em **Docker** para desenvolvimento local (padrão); definir **`ENV`** e credenciais/URL conforme `.env.example` (sem segredos no Git).

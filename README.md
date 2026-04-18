@@ -4,10 +4,12 @@ Backend (API) do sistema de gestão de consultório — repositório irmão do *
 
 ## Stack
 
-- **Go** (ver `go.mod` quando existir; ambiente de referência documentado em `docs/SPEC.md`)
+- **Java** (JDK **25** LTS referência — ver `docs/SPEC.md` §4)
+- **Spring Boot 4.x**
 - **PostgreSQL**
-- **Clean Architecture** — ver `docs/SPEC.md` §2
-- Entrada HTTP planeada sob prefixo versionado (ex.: `/api/v1`); bootstrap e composição em **`cmd/`** (injeção de dependências por feature)
+- **Maven** ou **Gradle** (fixar na Fase 1)
+- **Clean Architecture** (mapeada a camadas Spring) — ver `docs/SPEC.md` §2
+- API REST sob prefixo versionado (ex.: `/api/v1`); composição com **Spring Boot** (injeção por feature: auth, CRM, vendas, estoque, …)
 
 ## Documentação
 
@@ -16,20 +18,20 @@ Backend (API) do sistema de gestão de consultório — repositório irmão do *
 - [Plano de implementação](docs/PLAN.md) — fases e ordem sugerida.
 - [Changelog](CHANGELOG.md) — histórico de mudanças por versão.
 
-Gerenciador de pacotes: **`go`** (`go mod`).
+Build: **Maven** (`pom.xml`) ou **Gradle** (`build.gradle.kts`) — conforme o projecto na Fase 1.
 
 **Ligação ao frontend:** o cliente em `instituto-renata-fe` consome esta API; contrato de sessão (`email`, `role`, `enabledFeatures`) descrito no `docs/SPEC.md` §6.
 
 ## Desenvolvimento
 
-*(Comandos concretos serão preenchidos após `go mod init` e o primeiro binário em `cmd/` — ver `docs/PLAN.md` Fase 1.)*
+*(Comandos concretos serão preenchidos após gerar o projecto Spring Boot — ver `docs/PLAN.md` Fase 1.)*
 
-- **PostgreSQL em Docker** é o método previsto para correr a base de dados **localmente** (detalhes no `docs/SPEC.md` §7.1 quando existir `compose` ou equivalente).
-- O serviço usará a variável de ambiente **`ENV`** para escolher o perfil (local, staging, produção, …) e **condicionar** host/URL, utilizador e senha do Postgres — ver `docs/SPEC.md` §7.2 e `.env.example` (quando existir).
+- **PostgreSQL em Docker** é o método previsto para correr a base de dados **localmente** (ver `docs/SPEC.md` §7.1; `docker compose` quando existir no repositório).
+- **`ENV`** e perfis Spring condicionam host/URL, utilizador e senha do Postgres — ver `docs/SPEC.md` §7.2 e `.env.example` (quando existir).
 
 ```bash
-# exemplo futuro
-# go run ./cmd/api
+# exemplo futuro (Maven)
+# ./mvnw spring-boot:run
 ```
 
 ## Funcionalidades em produção (cliente)

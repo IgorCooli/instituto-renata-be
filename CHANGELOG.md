@@ -8,6 +8,8 @@ O formato segue a ideia de [Keep a Changelog](https://keepachangelog.com/pt-BR/1
 
 ### Changed
 
+- `docs/SPEC.md` e `docs/PLAN.md`: stack **Java** (JDK **25** LTS referência), **Spring Boot 4.x**, **Maven ou Gradle**, **Flyway/Liquibase**; arquitectura em camadas com Spring Boot; **`ENV`** mapeado a perfis Spring e datasource; remoção da orientação **Go** / `cmd/`.
+- `docs/PROMPT.md` e `README.md` alinhados à stack Java/Spring Boot.
 - `docs/SPEC.md` §8: **CORS** explícito em relação ao frontend (`VITE_API_BASE_URL` no `instituto-renata-fe`) e perfis **`ENV`**.
 
 ### Added

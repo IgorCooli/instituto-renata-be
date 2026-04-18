@@ -4,36 +4,37 @@ Documento vivo do repositório **`instituto-renata-be`**, alinhado ao produto em
 
 ## 1. Visão
 
-- **Linguagem:** **Go** (versão mínima e toolchain registadas em `README.md`; ambiente de referência do time documentada no histórico).
+- **Linguagem:** **Java** (versão mínima LTS e toolchain registadas em `README.md` / `pom.xml` ou Gradle; ambiente de referência do time documentada no histórico).
+- **Framework:** **Spring Boot** (linha 4.x estável; alinhar versão exacta ao `README` e ao build).
 - **Base de dados:** **PostgreSQL** — fonte de verdade relacional para tenants, utilizadores, domínio (CRM, vendas, estoque) e metadados de pacotes/features.
 - **Função:** API REST (evolução para jobs assíncronos quando necessário) consumida pelo `instituto-renata-fe`.
 - **Princípio:** regras de negócio e autorização **no servidor**; o cliente não é fonte de verdade para permissões.
 
-## 2. Arquitetura — Clean Architecture (estilo Uncle Bob)
+## 2. Arquitetura — Clean Architecture (espírito Uncle Bob, mapeada a Spring)
 
-O projeto segue **Clean Architecture**: dependências de código apontam **sempre para dentro** (domínio no centro). Camadas de referência (alinhadas ao diagrama *Entities → Use Cases → adaptadores externos*):
+O projeto segue **Clean Architecture**: dependências de código apontam **sempre para dentro** (domínio no centro). Em Spring Boot, a **inversão de dependências** concretiza-se com interfaces (ports) no núcleo da aplicação e implementações em adaptadores; o **container IoC** do Spring compõe beans na arranque.
 
 ```mermaid
 flowchart TB
-  subgraph config [Configuração]
-    CMD["cmd/* — bootstrap, composição raiz"]
+  subgraph boot [Bootstrap Spring Boot]
+    APP["@SpringBootApplication — @Configuration, composição"]
   end
   subgraph drivers [Provedores de dados]
     PG[(PostgreSQL)]
     EXT[Outros serviços externos]
   end
   subgraph entry [Pontos de entrada]
-    REST[REST HTTP]
-    JOBS[Jobs / workers futuros]
+    REST[Controllers REST / WebMvc]
+    JOBS[Jobs / @Scheduled futuros]
   end
   subgraph app [Casos de uso]
-    UC[Use cases por feature]
+    UC[Serviços de aplicação / use cases por feature]
   end
   subgraph domain [Domínio]
     E[Entidades e regras de negócio]
   end
-  CMD --> REST
-  CMD --> JOBS
+  APP --> REST
+  APP --> JOBS
   REST --> UC
   JOBS --> UC
   UC --> E
@@ -43,31 +44,36 @@ flowchart TB
 
 | Camada | Papel |
 |--------|--------|
-| **Entidades** | Modelos e invariantes de negócio independentes de framework e de PostgreSQL. |
-| **Casos de uso** | Orquestração da aplicação; interfaces (ports) para repositórios e serviços externos. |
-| **Pontos de entrada** | Handlers HTTP (REST), futuros workers; traduzem request/response e chamam casos de uso. |
-| **Provedores de dados** | Implementações concretas: **PostgreSQL**, clientes HTTP, etc. |
-| **Configuração (`cmd/`)** | **Bootstrap**: leitura de config, abertura de conexões, **injeção de dependências** e registo de **módulos por feature** (auth, CRM, vendas, estoque, …). Nada de lógica de negócio aqui — apenas composição. |
+| **Domínio** | Entidades, value objects e invariantes **sem** dependência de Web MVC nem de tecnologia de persistência concreta (quando possível, pacotes puros Java). |
+| **Casos de uso / aplicação** | Orquestração; interfaces (ports) para repositórios e serviços externos; serviços de aplicação invocados pelos controllers. |
+| **Adaptadores de entrada** | **Controllers** (`@RestController`), mapeamento HTTP/DTO → comandos dos casos de uso. |
+| **Adaptadores de saída** | Implementações de repositórios (ex.: Spring Data, JDBC, clientes HTTP). |
+| **Configuração** | Classe(s) de arranque, `@Configuration`, propriedades (`application*.yml`), registo de beans por **feature** (auth, CRM, vendas, estoque, …). Sem lógica de negócio nas classes de configuração. |
 
-**Regra de dependência:** pacotes internos mais centrais **não importam** handlers, drivers SQL nem `main`. Testes unitários focam entidades e casos de uso com ports mockados.
+**Regra de dependência:** o domínio e os casos de uso **não** dependem de controllers nem de detalhes de frameworks de infraestrutura nos pacotes centrais. Testes unitários focam domínio e serviços de aplicação com dependências substituídas por mocks/fakes.
 
 ## 3. Estrutura de repositório (diretrizes)
 
-- **`cmd/`** — um ou mais binários (ex.: `cmd/api`). Em cada um: `main`, leitura de env, criação do router/servidor, **wiring** que instancia repositórios PostgreSQL e regista **handlers agrupados por feature** (auth, CRM, vendas, estoque, …).
-- **`internal/`** (recomendado) — código não importável por outros módulos Go externos; subpastas por bounded context ou por camada (`domain`, `usecase`, `adapter/http`, `adapter/postgres`, …). A árvore exata será detalhada na Fase 1 do `PLAN.md`.
+- **Build:** **Maven** ou **Gradle** — fixar um na Fase 1 e registar no `README`.
+- **Código:** árvore `src/main/java` (ou `src/main/kotlin` se no futuro se optar por Kotlin) com **pacote base** único (ex.: `com.institutorenata.api` — nome final a alinhar ao grupo Maven/artifact).
+- Organização sugerida: **por feature** (ex.: `auth`, `crm`, `vendas`, `estoque`) com subpacotes `web`, `application`, `domain`, `persistence` **ou** por camada com subpacotes por contexto — decisão na Fase 1, documentada no `README`.
+- **Recursos:** `src/main/resources` — `application.yml` / `application-{profile}.yml`, ficheiros de migração (Flyway/Liquibase) em `resources/db/migration` ou equivalente.
 
 ## 4. Stack técnica
 
 | Componente | Escolha |
 |------------|---------|
-| Linguagem | **Go** |
+| Linguagem | **Java** (referência: JDK **25** LTS; mínimo a fixar no build) |
+| Framework | **Spring Boot 4.x** (versão estável alinhada ao [Spring Initializr](https://start.spring.io/) / notas de release) |
+| Build | **Maven** ou **Gradle** (fixar na Fase 1) |
 | Base de dados | **PostgreSQL** |
-| Ambiente / BD | Variável **`ENV`** — seleciona o perfil (local, staging, produção, …) e **condiciona** URL/host, utilizador, senha e restantes parâmetros de ligação; ver §7.2. |
-| Migrações | Ferramenta a definir (ex.: `goose`, `migrate`, `atlas`) — registar no histórico ao fixar. |
+| Acesso a dados | **Spring Data JPA** e/ou **JdbcTemplate** — detalhar por agregado na implementação |
+| Migrações | **Flyway** ou **Liquibase** (fixar na Fase 1) |
+| Ambiente / BD | Variável **`ENV`** — selecciona o **perfil Spring** (`local`, `staging`, `production`, …) e **condiciona** datasource (URL, utilizador, senha, etc.); ver §7.2. |
 | API | JSON, UTF-8; prefixo versionado (ex.: `/api/v1`). |
-| Auth | JWT assinado ou sessão com cookie seguro — detalhar em revisão; claims mínimos alinhados a §6. |
+| Auth | **Spring Security**; JWT assinado ou sessão com cookie seguro — detalhar em revisão; claims mínimos alinhados a §6. |
 
-**Ambiente de desenvolvimento validado (referência):** `go version go1.26.2 darwin/arm64` (ajustar quando o projeto fixar `go` em `go.mod`).
+**Ambiente de desenvolvimento validado (referência):** JDK **Temurin 25** (`darwin/arm64`); ajustar quando o projeto fixar versão no build.
 
 ## 5. Features alinhadas ao frontend
 
@@ -119,20 +125,20 @@ Resposta de login / `GET /me` deve ser compatível com o que o frontend já mode
 ## 7. PostgreSQL
 
 - **Única fonte relacional** para o MVP (sem replicação obrigatória no desenho inicial).
-- Conexão por pool; variáveis de ligação documentadas em `.env.example` (sem segredos versionados).
+- **Pool de ligações** via **HikariCP** (por defeito no Spring Boot) ou configuração equivalente; variáveis documentadas em `.env.example` / perfis (sem segredos versionados).
 - Migrações obrigatórias para qualquer alteração de schema em ambientes partilhados.
 
 ### 7.1 Desenvolvimento local (Docker)
 
-- Em **execução local**, o PostgreSQL deve ser fornecido via **Docker** (ex.: `docker compose` ou `Compose` com serviço `postgres` definido no repositório quando a base de código existir). Este é o fluxo **padrão** documentado para levantar a BD ao desenvolver.
-- Uma instalação nativa de PostgreSQL na máquina do desenvolvedor continua possível, desde que a ligação respeite os mesmos parâmetros acordados para o perfil `local` (ver §7.2).
+- Em **execução local**, o PostgreSQL deve ser fornecido via **Docker** (ex.: `docker compose` com serviço `postgres` no repositório). Fluxo **padrão** para levantar a BD ao desenvolver.
+- Uma instalação nativa de PostgreSQL na máquina do desenvolvedor continua possível, desde que a ligação respeite os mesmos parâmetros do perfil `local` (ver §7.2).
 
 ### 7.2 Variável `ENV` e perfis de ligação
 
-- O serviço deve ler uma variável de ambiente **`ENV`** que identifica o **perfil de ambiente** em que o processo corre (ex.: `local`, `staging`, `production` — conjunto de valores permitidos a fixar no código e a listar no `README` / `.env.example`).
-- O valor de **`ENV` condiciona a configuração de acesso ao PostgreSQL**: para cada perfil, o processo utiliza o **URL/host**, **porta**, **utilizador**, **palavra-passe** e **nome da base** (ou equivalente num único `DATABASE_URL`) adequados àquele ambiente — por exemplo credenciais do container em `local` e credenciais geridas no servidor em `production`.
-- O mesmo binário deve poder correr em máquina local e em servidores **alterando apenas variáveis de ambiente** (incluindo `ENV` e as credenciais ou URLs associadas ao perfil), sem recompilar para mudar de base de dados.
-- A forma exacta de mapear `ENV` → parâmetros (ficheiro de config por ambiente, variáveis com sufixo, ou `DATABASE_URL` distintos por perfil) fica definida na implementação (Fase 1), desde que **`ENV` seja o interruptor documentado** e o contrato de variáveis esteja em `.env.example`.
+- O processo deve ler uma variável de ambiente **`ENV`** que identifica o **perfil** (ex.: `local`, `staging`, `production` — valores permitidos a fixar no código e a listar no `README` / `.env.example`).
+- **`ENV` condiciona a configuração de acesso ao PostgreSQL**: por convenção, mapear para **`spring.profiles.active`** (ou perfil derivado) e ficheiros **`application-{profile}.yml`** com datasource (URL, utilizador, senha, nome da base) adequados a cada ambiente.
+- O mesmo **ficheiro JAR** deve poder correr em máquina local e em servidores **alterando apenas variáveis de ambiente** e/ou perfis, sem rebuild para mudar de base de dados.
+- A forma exacta (`ENV` → `SPRING_PROFILES_ACTIVE`, propriedades `SPRING_DATASOURCE_*`, ou `DATABASE_URL` por perfil) fica definida na Fase 1, desde que **`ENV` seja o interruptor documentado** e o contrato esteja em `.env.example`.
 
 ## 8. Segurança e erros
 
@@ -143,7 +149,7 @@ Resposta de login / `GET /me` deve ser compatível com o que o frontend já mode
 
 ## 9. Observabilidade
 
-- Logs estruturados; correlacionar `request_id` e `tenant_id` quando existirem.
+- Logs estruturados (ex.: via **Logback** / **Micrometer** conforme stack); correlacionar `request_id` e `tenant_id` quando existirem.
 
 ## 10. Processo de atualização e documentação
 
@@ -162,3 +168,4 @@ Resposta de login / `GET /me` deve ser compatível com o que o frontend já mode
 | 2026-04-18 | Versão inicial: Go, PostgreSQL, Clean Architecture, `cmd/` e features alinhadas ao FE; Go 1.26.2 como referência de ambiente. |
 | 2026-04-17 | PostgreSQL em Docker para desenvolvimento local; variável `ENV` para perfis de ligação à BD (URL, utilizador, senha, etc.). |
 | 2026-04-19 | §8: CORS alinhado ao frontend (`VITE_API_BASE_URL`) e perfis `ENV`. |
+| 2026-04-18 | **Stack:** Java + Spring Boot 4.x; arquitectura e estrutura de repo actualizadas; migrações Flyway/Liquibase; `ENV` mapeado a perfis Spring. |
